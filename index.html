@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lobby Crasher</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #12121a;
+    --bg3: #1a1a26;
+    --accent: #7c6af7;
+    --accent2: #a78bfa;
+    --accent3: #c4b5fd;
+    --cyan: #22d3ee;
+    --text: #f0eeff;
+    --muted: #8b85a8;
+    --border: rgba(124,106,247,0.18);
+    --card: rgba(20,20,35,0.85);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* BG grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,106,247,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,106,247,0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Glow blob */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 900px;
+    height: 600px;
+    background: radial-gradient(ellipse at center, rgba(124,106,247,0.12) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 32px; position: relative; z-index: 1; }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    background: rgba(10,10,15,0.75);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 32px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: -0.5px;
+    color: var(--text);
+    text-decoration: none;
+  }
+  .logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta {
+    background: var(--accent);
+    color: #fff;
+    padding: 9px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .nav-cta:hover { background: var(--accent2); transform: translateY(-1px); }
+
+  /* HERO */
+  .hero {
+    padding: 160px 0 100px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(124,106,247,0.1);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 13px;
+    color: var(--accent3);
+    margin-bottom: 28px;
+    font-weight: 500;
+  }
+  .hero-badge .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(52px, 8vw, 96px);
+    line-height: 1;
+    letter-spacing: -3px;
+    margin-bottom: 24px;
+  }
+  h1 .line1 { display: block; color: var(--text); }
+  h1 .line2 {
+    display: block;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--cyan) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-sub {
+    font-size: 18px;
+    color: var(--muted);
+    max-width: 520px;
+    margin: 0 auto 48px;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+  .hero-btns {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    padding: 14px 32px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  }
+  .btn-primary:hover {
+    background: var(--accent2);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(124,106,247,0.35);
+  }
+  .btn-secondary {
+    background: transparent;
+    color: var(--text);
+    padding: 14px 32px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  }
+  .btn-secondary:hover {
+    border-color: rgba(124,106,247,0.5);
+    background: rgba(124,106,247,0.06);
+    transform: translateY(-2px);
+  }
+
+  /* STATS BAR */
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    margin-top: 80px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--card);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .stat {
+    flex: 1;
+    padding: 28px 24px;
+    text-align: center;
+    border-right: 1px solid var(--border);
+  }
+  .stat:last-child { border-right: none; }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -1px;
+  }
+  .stat-num span { color: var(--accent); }
+  .stat-label { font-size: 13px; color: var(--muted); margin-top: 4px; font-weight: 400; }
+
+  /* WARNING CARD */
+  .warning-section { padding: 80px 0; }
+  .warning-card {
+    background: rgba(34,211,238,0.04);
+    border: 1px solid rgba(34,211,238,0.2);
+    border-radius: 16px;
+    padding: 32px 40px;
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+  }
+  .warning-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(34,211,238,0.1);
+    border: 1px solid rgba(34,211,238,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .warning-icon svg { width: 22px; height: 22px; stroke: var(--cyan); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .warning-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--cyan);
+    margin-bottom: 8px;
+  }
+  .warning-text {
+    font-size: 15px;
+    color: #a0c8d8;
+    line-height: 1.7;
+    font-weight: 400;
+  }
+  .warning-text strong { color: var(--text); font-weight: 500; }
+  .warning-steps {
+    margin-top: 16px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .step-pill {
+    background: rgba(34,211,238,0.08);
+    border: 1px solid rgba(34,211,238,0.18);
+    border-radius: 100px;
+    padding: 6px 14px;
+    font-size: 13px;
+    color: var(--cyan);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+  }
+  .step-pill .num {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: rgba(34,211,238,0.2);
+    font-size: 11px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+  }
+
+  /* FEATURES */
+  .features-section { padding: 80px 0; }
+  .section-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(30px, 4vw, 48px);
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    margin-bottom: 12px;
+    line-height: 1.1;
+  }
+  .section-sub {
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 460px;
+    line-height: 1.7;
+    font-weight: 300;
+    margin-bottom: 56px;
+  }
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  .feature-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .feature-card:hover {
+    border-color: rgba(124,106,247,0.4);
+    transform: translateY(-3px);
+  }
+  .feature-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: rgba(124,106,247,0.12);
+    border: 1px solid rgba(124,106,247,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
+  }
+  .feature-icon svg { width: 20px; height: 20px; stroke: var(--accent2); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .feature-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .feature-desc { font-size: 14px; color: var(--muted); line-height: 1.65; font-weight: 300; }
+
+  /* DOWNLOAD */
+  .download-section { padding: 80px 0 120px; }
+  .download-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 64px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .download-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% -20%, rgba(124,106,247,0.15) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .download-card .section-title { margin-bottom: 16px; }
+  .download-card .section-sub { margin: 0 auto 40px; }
+  .version-tag {
+    display: inline-block;
+    background: rgba(124,106,247,0.12);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 4px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent3);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  .platform-tags {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 24px;
+  }
+  .platform-tag {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 32px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--muted);
+    position: relative;
+    z-index: 1;
+  }
+  footer strong { color: var(--accent); font-weight: 600; }
+
+  @media (max-width: 600px) {
+    .stats { flex-direction: column; }
+    .stat { border-right: none; border-bottom: 1px solid var(--border); }
+    .stat:last-child { border-bottom: none; }
+    .warning-card { flex-direction: column; gap: 16px; }
+    .nav-links { display: none; }
+    .hero { padding: 120px 0 60px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="logo">Lobby<span>Crasher</span></a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#download">Download</a></li>
+    </ul>
+    <a href="#download" class="nav-cta">Download Now</a>
+  </div>
+</nav>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-badge">
+        <span class="dot"></span>
+        Now Available
+      </div>
+      <h1>
+        <span class="line1">LOBBY</span>
+        <span class="line2">CRASHER</span>
+      </h1>
+      <p class="hero-sub">Crash in, take over, and dominate every lobby. The ultimate tool built for the bold.</p>
+      <div class="hero-btns">
+        <a href="https://www.mediafire.com/file/xokstf2nha2b98u/Lobby_Crasher.zip/file" target="_blank" class="btn-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Free Download
+        </a>
+        <a href="#features" class="btn-secondary">See Features</a>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-num"><span>100</span>%</div>
+          <div class="stat-label">Free to use</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num"><span>0</span></div>
+          <div class="stat-label">Viruses. Ever.</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num"><span>∞</span></div>
+          <div class="stat-label">Lobbies to crash</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="warning-section" id="warning">
+    <div class="wrap">
+      <div class="warning-card">
+        <div class="warning-icon">
+          <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div>
+          <div class="warning-title">Windows SmartScreen Notice</div>
+          <p class="warning-text">
+            Windows may show a SmartScreen warning — click <strong>'More info'</strong> → <strong>'Run anyway'</strong>. This is a false positive.
+            <br><br>
+            Lobby Crasher is <strong>100% clean</strong>. Windows flags new apps that haven't yet built up a download reputation. Your antivirus is just being cautious — not detecting anything real.
+          </p>
+          <div class="warning-steps">
+            <span class="step-pill"><span class="num">1</span> Click "More info"</span>
+            <span class="step-pill"><span class="num">2</span> Click "Run anyway"</span>
+            <span class="step-pill"><span class="num">3</span> You're in</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="features-section" id="features">
+    <div class="wrap">
+      <p class="section-label">What you get</p>
+      <h2 class="section-title">Built different.</h2>
+      <p class="section-sub">Everything you need, nothing you don't. Lightweight, fast, and straight to the point.</p>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </div>
+          <div class="feature-title">Instant Launch</div>
+          <p class="feature-desc">Opens fast, no install wizard, no bloat. Double-click and you're in the game.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+          </div>
+          <div class="feature-title">Always Connected</div>
+          <p class="feature-desc">Designed to keep you locked in and running smoothly every session.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          </div>
+          <div class="feature-title">Fully Safe</div>
+          <p class="feature-desc">No malware, no spyware, no nonsense. Open source friendly and totally clean.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="download-section" id="download">
+    <div class="wrap">
+      <div class="download-card">
+        <span class="version-tag">Latest Release</span>
+        <h2 class="section-title">Ready to crash?</h2>
+        <p class="section-sub" style="max-width:400px;">Download Lobby Crasher for free. No account, no email, no strings attached.</p>
+        <a href="https://www.mediafire.com/file/xokstf2nha2b98u/Lobby_Crasher.zip/file" target="_blank" class="btn-primary" style="font-size:17px; padding:16px 40px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download Free
+        </a>
+        <div class="platform-tags">
+          <span class="platform-tag">Windows 10</span>
+          <span class="platform-tag">Windows 11</span>
+          <span class="platform-tag">Free forever</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  Made with care by the <strong>Lobby Crasher</strong> team · Free to use, always.
+</footer>
+
+</body>
+</html>
